@@ -8,16 +8,32 @@ public class Game {
     private String misses;
 
     public Game(String answer) {
-        this.answer = answer;
+        this.answer = answer.toLowerCase();
         this.hits = "";
         this.misses = "";
+    }
+
+    private char normalizeGuess(char letter) {
+        if (!Character.isLetter(letter)) {
+            throw new IllegalArgumentException("A letter is required");
+        }
+        letter = Character.toLowerCase(letter);
+        if (misses.indexOf(letter) != -1 || hits.indexOf(letter) != -1) {
+            throw new IllegalArgumentException(letter + " has already been guessed");
+        }
+        return letter;
     }
 
     public int getRemainingTries() {
         return MAX_MISSES - misses.length();
     }
 
+    public String getAnswer() {
+        return this.answer;
+    }
+
     public boolean applyGuess(char letter) {
+        letter = normalizeGuess(letter);
         boolean isHit = answer.indexOf(letter) != -1;
         if (isHit) {
             hits += letter;
@@ -25,6 +41,13 @@ public class Game {
             misses += letter;
         }
         return isHit;
+    }
+
+    public boolean applyGuess(String letters) {
+        if(letters.length() == 0) {
+            throw new IllegalArgumentException("No letter found");
+        }
+        return applyGuess(letters.charAt(0));
     }
 
     public String getCurrentProgress() {
@@ -37,5 +60,9 @@ public class Game {
             progress += display;
         }
         return progress;
+    }
+
+    public boolean isWon() {
+        return getCurrentProgress().indexOf('_') == -1;
     }
 }
